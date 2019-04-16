@@ -45,12 +45,16 @@ def get_spin_result(win_prob):
     return result
 
 
-def simulate(win_prob, win_limit, bet_times):
+def simulate(win_prob, win_limit, bet_times, lose_limit=10**100):
     # add your code here to implement the experiments
     winnings = []
     episode_winnings = 0
     bet_amount = 1
     for i in range(bet_times):
+        if episode_winnings <= -lose_limit:
+            winnings.append(-lose_limit)
+            continue
+
         if episode_winnings >= win_limit:
             winnings.append(win_limit)
             continue
@@ -62,6 +66,8 @@ def simulate(win_prob, win_limit, bet_times):
         else:
             episode_winnings -= bet_amount
             bet_amount *= 2
+            if episode_winnings < 0:
+                bet_amount = min(bet_amount, lose_limit + episode_winnings)
         winnings.append(episode_winnings)
     return np.array(winnings)
 
@@ -111,8 +117,43 @@ def test_code():
         plt.plot(means + stds)
         plt.plot(means - stds)
         plt.show()
+
+    def p4():
+        means = []
+        stds = []
+        for i in range(1000):
+            winnings = simulate(win_prob, win_limit, 1000, 256)
+            means.append(np.mean(winnings))
+            stds.append(np.std(winnings))
+        means = np.array(means)
+        stds = np.array(stds)
+
+        # plt.xlim([0, 300])
+        plt.ylim([-250, 250])
+        plt.plot(means)
+        # plt.plot(means + stds)
+        # plt.plot(means - stds)
+        plt.show()
+    
+    def p5():
+        means = []
+        stds = []
+        for i in range(1000):
+            winnings = simulate(win_prob, win_limit, 1000, 256)
+            means.append(np.median(winnings))
+            stds.append(np.std(winnings))
+        means = np.array(means)
+        stds = np.array(stds)
+
+        # plt.xlim([0, 300])
+        plt.ylim([-250, 250])
+        plt.plot(means)
+        # plt.plot(means + stds)
+        # plt.plot(means - stds)
+        plt.show()
     # p1()
-    p3()
+    # p3()
+    p5()
 
 if __name__ == "__main__":
     test_code()
